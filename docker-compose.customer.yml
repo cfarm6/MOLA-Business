@@ -1,0 +1,22 @@
+# Customer-managed runtime (Compose) — pin exact digests or semver tags published by CI.
+# Set REGISTRY and VERSION to match your release (see deploy/README.md).
+#
+# Example:
+#   export REGISTRY=ghcr.io/myorg
+#   export VERSION=1.2.3
+#   docker compose -f docker-compose.customer.yml pull && docker compose -f docker-compose.customer.yml up -d
+
+services:
+  api:
+    image: ${REGISTRY:?set REGISTRY}/mola-business-api:${VERSION:?set VERSION}
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+  web:
+    image: ${REGISTRY:?set REGISTRY}/mola-business-web:${VERSION:?set VERSION}
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api

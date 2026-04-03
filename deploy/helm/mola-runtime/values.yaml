@@ -1,0 +1,14 @@
+# Align image.repository / tag with GHCR (or private registry) output from .github/workflows/oci-release.yml
+global:
+  imageRegistry: ghcr.io/example
+  imageTag: "1.2.3"
+
+api:
+  imageRepository: mola-business-api
+  service:
+    port: 8000
+
+web:
+  imageRepository: mola-business-web
+  service:
+    port: 80
