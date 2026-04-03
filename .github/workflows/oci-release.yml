@@ -123,6 +123,14 @@ jobs:
           format: spdx-json
           output-file: sbom-${{ matrix.name }}.spdx.json
 
+      - name: Attest SBOMs to registry (next to image digest)
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          IMG="${{ needs.meta.outputs.image_prefix }}-${{ matrix.name }}@${DIGEST}"
+          cosign attest --yes --predicate "sbom-${{ matrix.name }}.spdx.json" --type spdxjson "$IMG"
+          cosign attest --yes --predicate "sbom-${{ matrix.name }}.cdx.json" --type cyclonedx "$IMG"
+
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -130,3 +138,25 @@ jobs:
           path: |
             sbom-${{ matrix.name }}.cdx.json
             sbom-${{ matrix.name }}.spdx.json
+
+  github-release:
+    name: GitHub Release (SBOM downloads)
+    needs: [meta, build-sign-push]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: sboms
+          pattern: sbom-*-${{ needs.meta.outputs.version }}
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          files: sboms/**/*
