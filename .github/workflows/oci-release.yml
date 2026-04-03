@@ -2,8 +2,8 @@
 # and signs manifests with cosign (keyless OIDC on GitHub Actions).
 #
 # Required repo settings (org or repo):
-# - Actions: read repo + packages, id-token: write (for cosign OIDC)
-# - GHCR: ensure workflow can push (default GITHUB_TOKEN works for same repo)
+# - Actions: contents: write (SBOM attach to GitHub Release), packages + id-token: write
+# - GHCR: default GITHUB_TOKEN works for same-repo image push
 #
 # Optional secrets for a private registry (otherwise GHCR):
 #   REGISTRY_URI  e.g. ghcr.io/myorg
@@ -25,7 +25,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
   packages: write
   id-token: write
   attestations: write

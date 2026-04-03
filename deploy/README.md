@@ -8,7 +8,7 @@
 
 ## Operator checklist
 
-1. **Repository**: enable **Actions** with `id-token: write` and **Packages** write for GHCR (defaults work for same-repo pushes).
+1. **Repository**: workflow sets `permissions` to `contents: write` (SBOM files attached to the GitHub Release), `packages: write`, and `id-token: write` (cosign). If you tighten org defaults, keep those scopes for this workflow.
 2. **Tag a release**: `git tag v1.2.3 && git push origin v1.2.3` (pre-release: `v1.2.3-rc.1` matches the workflow pattern).
 3. **Optional private registry**: set repo/org secrets `REGISTRY_URI`, `REGISTRY_USER`, `REGISTRY_PASSWORD`; workflow comments describe behavior.
 4. **Verify signature** (example): `cosign verify ghcr.io/<owner>/mola-business-api@<digest>`.
